@@ -1,0 +1,89 @@
+sudo apt install zfs-dkms zfs-initramfs zfs-zed zfsutils-linux -y
+sudo apt install linux-headers-$(uname -r) linux-image-amd64 dkms parted rsync -y
+sudo apt install bridge-utils vlan ifenslave -y
+
+cat /etc/network/interfaces
+# This file describes the network interfaces available on your system
+# and how to activate them. For more information, see interfaces(5).
+
+source /etc/network/interfaces.d/*
+
+# The loopback network interface
+auto lo
+iface lo inet loopback
+
+auto enp59s0f1
+iface enp59s0f1 inet manual
+	bond-master bond0
+
+auto enp94s0f1
+iface enp94s0f1 inet manual
+	bond-master bond0
+
+auto enp59s0f0
+iface enp59s0f0 inet manual
+        bond-master bond1
+
+auto enp94s0f0
+iface enp94s0f0 inet manual
+        bond-master bond1
+	
+
+BOND0:
+auto bond0
+iface bond0 inet manual
+	bond-slaves none
+	bond-miimon 100
+	bond-mode 802.3ad
+	bond-lacp-rate 1
+	bond-xmit-hash-policy layer2+3
+
+BR0:
+auto br0
+iface br0 inet manual
+	bridge-ports bond0
+	bridge-stp off
+	bridge-fd 0
+
+iface bond0.206 inet manual
+auto  br0v206
+iface br0v206 inet static
+	address 172.21.206.12/24
+	gateway 172.21.206.14
+	bridge_ports bond0.206
+	bridge_stp off
+	bridge_fd 0
+
+	
+BOND1:
+auto bond1
+iface bond1 inet manual
+        bond-slaves none
+        bond-miimon 100
+        bond-mode 802.3ad
+        bond-lacp-rate 1
+        bond-xmit-hash-policy layer2+3
+		
+
+BR1:
+auto br1
+iface br1 inet manual
+        bridge-ports bond1
+        bridge-stp off
+        bridge-fd 0
+
+iface bond1.208 inet manual
+auto  br1v208
+iface br1v208 inet static
+	address 172.21.208.2/24
+	bridge_ports bond1.208
+	bridge_stp off
+	bridge_fd 0
+
+iface bond1.209 inet manual
+auto  br1v209
+iface br1v209 inet static
+	address 172.21.209.2/24
+        bridge_ports bond1.209
+        bridge_stp off
+        bridge_fd 0
